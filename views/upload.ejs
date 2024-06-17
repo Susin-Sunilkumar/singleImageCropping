@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Image Cropper</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.1.0/cropper.min.css" />
+  <style>
+    .img-container {
+      max-width: 100%;
+    }
+
+    .buttons-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Add Product</h1>
+  <form id="productForm" action="/add-product" method="post" novalidate enctype="multipart/form-data">
+    <label for="productName">Product Name:</label>
+    <input type="text" id="productname" name="name" required />
+    <div id="productnameError" class="error"></div>
+    <br /><br />
+
+    <label for="productCategory">Category:</label>
+    <input type="text" id="category" name="category" required />
+    <div id="categoryError" class="error"></div>
+    <br /><br />
+
+    <label for="productPrice">Price:</label>
+    <input type="text" id="productPrice" name="price" required />
+    <div id="priceError" class="error"></div>
+    <br /><br />
+
+    <label for="productIsListed">Is Listed:</label>
+    <input type="checkbox" id="productIsListed" name="isListed" /><br /><br />
+
+    <label for="productStock">Stock:</label>
+    <input type="text" id="productStock" name="stock" required />
+    <div id="stockError" class="error"></div>
+    <br /><br />
+
+
+
+
+    <label for="image">Image:</label>
+    <input type="file" id="imageInput" name="imageInput" multiple style="margin-bottom: 1rem;" />
+
+
+
+
+
+
+
+    <div class="cropAndUpload" style="display: flex; gap: 5rem">
+
+      <div class="grouping crop button and save with the image">
+        <div id="theCropperjsBG"
+          style=" width: 300px; height: 169px; display: flex; justify-content: space-around; display: none;">
+          <img id="image" name="image" style="max-width: 50%" />
+        </div>
+      </div>
+
+
+      <div>
+        <canvas id="canvas" name="canvas" style="display: none; height: 169px"></canvas>
+      </div>
+
+    </div>
+
+
+
+
+
+
+
+    <div style="width: 25%;margin-bottom: 1rem;"></div>
+    <button type="button" id="cropButton" class="hidden">Save the cropped Image</button>
+    <button type="button" id="deleteButton" class="hidden">Delete Image</button>
+    </div>
+
+
+
+    <div id="imgError" class="error"></div>
+    <br /><br />
+    <button type="submit" id="submit">Submit</button>
+  </form>
+
+  <script src="/formValidation.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+  <script>
+    const form = document.getElementById("productForm");
+
+    form.addEventListener("submit", (event) => {
+      if (!validateForm()) {
+        console.log(
+          "INSIDE the form listener validateform function LINE NO: 82"
+        );
+        event.preventDefault();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      let cropper;
+      const image = document.getElementById("image");
+      const input = document.getElementById("imageInput");
+      const canvas = document.getElementById("canvas");
+
+      const cropButton = document.getElementById("cropButton");
+     
+      const deleteButton = document.getElementById("deleteButton");
+
+      const cropperContainer = document.getElementById('theCropperjsBG');
+
+      input.addEventListener("change", (event) => {
+
+        const files = event.target.files;
+        if (files && files.length > 0) {
+          cropperContainer.style.display = 'block';
+        cropButton.classList.remove('hidden');
+       
+        deleteButton.classList.remove('hidden');
+          const reader = new FileReader();
+          reader.onload = function (e) {
+
+            image.src = e.target.result;
+
+
+
+            if (cropper) {
+              cropper.destroy();
+            }
+            cropper = new Cropper(image, {
+              aspectRatio: 1,
+              viewMode: 2,
+            });
+          };
+          reader.readAsDataURL(files[0]);
+        }
+      });
+
+      document.getElementById("cropButton").addEventListener("click", () => {
+        if (cropper) {
+          const croppedCanvas = cropper.getCroppedCanvas();
+
+          canvas.width = croppedCanvas.width;
+          canvas.height = croppedCanvas.height;
+
+          canvas.style.display = "block";
+          canvas.getContext("2d").drawImage(croppedCanvas, 0, 0);
+
+          // Convert cropped canvas to blob and set it as the file input value
+          croppedCanvas.toBlob((blob) => {
+            const fileInput = new File([blob], "cropped.jpg", {
+              type: "image/jpeg",
+            });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(fileInput);
+            input.files = dataTransfer.files;
+          });
+        }
+      });
+      
+
+      deleteButton.addEventListener("click", () => {
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        image.src = "";
+        input.value = "";
+        canvas.style.display = "none";
+
+        cropButton.classList.add('hidden');
+        deleteButton.classList.add('hidden');
+        cropperContainer.style.display = 'none';
+
+      });
+    });
+  </script>
+</body>
+
+</html>

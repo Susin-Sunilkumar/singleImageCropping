@@ -1,0 +1,31 @@
+<!-- product.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products</title>
+<link rel="uploads" href="/public/uploads/1716551430867.jpg">
+</head>
+<body>
+    <!-- <img src="/uploads/1716551637778.jpg" alt=""> -->
+  <% products.forEach(product => { %>
+    <div class="product">
+      <h1><%= product.name %></h1>
+      <p>Category: <%= product.category %></p>
+      <p>Price: <%= product.price %></p>
+      <p>testin</p>
+      <!-- Add more product information as needed -->
+
+      <!-- Display the uploaded image -->
+      <img src="<%=product.imagepath%>" alt="Product Image" style="width: 200px; height: 100px;">
+
+      <!-- Add more HTML to display other product information -->
+    </div>
+  <% }); %>
+  <br><br>
+  <div>
+    <a href="/"><button>go for uploading products</button></a>
+  </div>
+</body>
+</html>
